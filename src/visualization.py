@@ -65,17 +65,25 @@ class CosmeticsVisualizer:
 
     @staticmethod
     def plot_revenue_dist(df):
-        fig = px.area(df.sort_values('Total_Spending'), y='Total_Spending', color_discrete_sequence=['#E8CFCF'], title="Revenue Distribution")
+        df_sorted = df.sort_values('Total_Spending') if not df.empty else df
+        fig = px.area(df_sorted, y='Total_Spending', color_discrete_sequence=['#E8CFCF'], title="Revenue Distribution")
         fig.update_xaxes(showgrid=False)
         fig.update_yaxes(showgrid=True, gridcolor=CosmeticsVisualizer.GRID_COLOR)
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Revenue Distribution Flow")
+        return CosmeticsVisualizer._apply_luxury_layout(fig, "Revenue Distribution")
 
     @staticmethod
     def plot_correlation_heatmap(df):
-        num_cols = ['Age', 'Annual_Income', 'Purchase_Frequency', 'Total_Spending', 'Average_Order_Value']
-        corr = df[num_cols].corr()
+        num_cols = [c for c in ['Age', 'Annual_Income', 'Purchase_Frequency', 'Total_Spending', 'Average_Order_Value'] if c in df.columns]
+        corr = df[num_cols].corr() if not df.empty else pd.DataFrame()
         fig = px.imshow(corr, text_auto=".2f", color_continuous_scale=['#FAF8F5', '#E8CFCF', '#D9A5A5', '#C9A86A'], title="Correlation Heatmap")
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Correlation Matrix")
+        return CosmeticsVisualizer._apply_luxury_layout(fig, "Correlation Heatmap")
+
+    @staticmethod
+    def plot_pair_sample(df):
+        sample_df = df.sample(min(150, len(df)), random_state=42) if len(df) > 0 else df
+        fig = px.scatter(sample_df, x='Annual_Income', y='Total_Spending', color='Customer_Persona',
+                         color_discrete_sequence=CosmeticsVisualizer.PALETTE, title="Pair Plot (Sample)")
+        return CosmeticsVisualizer._apply_luxury_layout(fig, "Pair Plot (Sample)")
 
     # --- CLUSTERING & RFM CHARTS ---
     @staticmethod
@@ -85,7 +93,7 @@ class CosmeticsVisualizer:
             hover_data=['Customer_ID', 'Total_Spending'],
             color_discrete_sequence=CosmeticsVisualizer.PALETTE, template='plotly_white'
         )
-        fig.update_traces(marker=dict(size=9, opacity=0.85, line=dict(width=1, color='#FFFFFF')))
+        fig.update_traces(marker=dict(size=9, opacity=0.88, line=dict(width=1, color='#FFFFFF')))
         fig.update_xaxes(showgrid=True, gridcolor=CosmeticsVisualizer.GRID_COLOR)
         fig.update_yaxes(showgrid=True, gridcolor=CosmeticsVisualizer.GRID_COLOR)
         return CosmeticsVisualizer._apply_luxury_layout(fig, "PCA VISUALIZATION (2D)")
@@ -100,26 +108,8 @@ class CosmeticsVisualizer:
         return fig
 
     @staticmethod
-    def plot_rfm_treemap(df):
-        rfm_counts = df['RFM_Segment'].value_counts().reset_index()
-        rfm_counts.columns = ['RFM_Segment', 'Count']
-        fig = px.treemap(
-            rfm_counts, path=['RFM_Segment'], values='Count', color='Count',
-            color_continuous_scale=['#FAF8F5', '#E8CFCF', '#D9A5A5', '#C9A86A']
-        )
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "RFM Behavioral Client Portfolio")
-
-    @staticmethod
-    def plot_clv_distribution(df):
-        fig = px.histogram(
-            df, x='Predicted_CLV_3Yr', color='CLV_Tier', nbins=30,
-            color_discrete_sequence=['#C9A86A', '#D9A5A5', '#D8D2F0', '#C9D8C5'], template='plotly_white'
-        )
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Predicted 3-Year Customer Lifetime Value")
-
-    @staticmethod
     def plot_category_spend(df):
-        cat_df = df.groupby('Preferred_Category')['Total_Spending'].sum().reset_index()
+        cat_df = df.groupby('Preferred_Category')['Total_Spending'].sum().reset_index() if not df.empty else pd.DataFrame({'Preferred_Category': ['None'], 'Total_Spending': [0]})
         fig = px.pie(cat_df, names='Preferred_Category', values='Total_Spending', hole=0.5, color_discrete_sequence=CosmeticsVisualizer.PALETTE)
         fig.update_traces(textposition='inside', textinfo='percent+label')
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Revenue Contribution by Category")
+        return CosmeticsVisualizer._apply_luxury_layout(fig, "Top Product Categories")

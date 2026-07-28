@@ -1,0 +1,34 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+bin/
+lib/
+include/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Streamlit Local Config & Cache
+.streamlit/
+*.pyc
+
+# Environment / Secret Files (if any)
+.env
+.env.*
+*.pem
+*.key
+*.token
+
+# Temp Exports & Generated PDF Reports
+reports/*.pdf
+exports/*.csv
