@@ -1,129 +1,81 @@
-import os
-import sys
-from pathlib import Path
-from fpdf import FPDF
-import pandas as pd
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import config
-
-class CleanPDF(FPDF):
-    def header(self):
-        self.set_font('Helvetica', 'B', 14)
-        self.set_text_color(30, 136, 229)
-        self.cell(0, 10, 'Cosmetics Customer Intelligence & Analytics Report', border=False, ln=True, align='C')
-        self.set_draw_color(200, 200, 200)
-        self.line(10, 22, 200, 22)
-        self.ln(5)
-
-    def footer(self):
-        self.set_y(-15)
-        self.set_font('Helvetica', 'I', 8)
-        self.set_text_color(128, 128, 128)
-        self.cell(0, 10, f'Page {self.page_no()}/{{nb}} | Executive Intelligence Report', align='C')
+import io
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
 
 class PDFReportGenerator:
-    """
-    Automated PDF Report Builder for Customer Analytics.
-    """
-    def __init__(self, data_path=config.FINAL_SEGMENTED_PATH):
-        self.data_path = Path(data_path)
-        self.output_pdf = config.REPORTS_DIR / "Customer_Intelligence_Executive_Report.pdf"
+    def build_pdf_report_bytes(self, df_filtered, insights_list):
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+        story = []
 
-    def build_pdf_report(self, insights_list):
-        print("\n================ GENERATING EXECUTIVE PDF REPORT ================")
-        if not self.data_path.exists():
-            from src.clustering import CosmeticsClusteringEngine
-            df, _ = CosmeticsClusteringEngine().run_all_clustering_algorithms()
-        else:
-            df = pd.read_csv(self.data_path)
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'LumiereTitle',
+            parent=styles['Heading1'],
+            fontName='Helvetica-Bold',
+            fontSize=20,
+            textColor=colors.HexColor('#2E2A28'),
+            spaceAfter=6
+        )
+        subtitle_style = ParagraphStyle(
+            'LumiereSubTitle',
+            parent=styles['Normal'],
+            fontName='Helvetica',
+            fontSize=10,
+            textColor=colors.HexColor('#8C837D'),
+            spaceAfter=15
+        )
+        section_style = ParagraphStyle(
+            'LumiereSection',
+            parent=styles['Heading2'],
+            fontName='Helvetica-Bold',
+            fontSize=12,
+            textColor=colors.HexColor('#C9A86A'),
+            spaceBefore=10,
+            spaceAfter=8
+        )
+        body_style = ParagraphStyle(
+            'LumiereBody',
+            parent=styles['Normal'],
+            fontName='Helvetica',
+            fontSize=9,
+            textColor=colors.HexColor('#2E2A28'),
+            spaceAfter=6
+        )
 
-        pdf = CleanPDF()
-        pdf.alias_nb_pages()
-        pdf.add_page()
-        pdf.set_auto_page_break(auto=True, margin=15)
+        # Header
+        story.append(Paragraph("LUMIÈRE AI ANALYTICS EXECUTIVE REPORT", title_style))
+        story.append(Paragraph("Customer Intelligence, Persona Segmentation & Performance Insights", subtitle_style))
+        story.append(Spacer(1, 10))
 
-        # Title / Executive Summary Header
-        pdf.set_font('Helvetica', 'B', 16)
-        pdf.set_text_color(33, 33, 33)
-        pdf.cell(0, 10, 'Executive Analytics Summary', ln=True)
-        pdf.ln(2)
+        # Executive Metrics Table
+        story.append(Paragraph("EXECUTIVE KPI SUMMARY", section_style))
+        kpi_data = [
+            ["Metric", "Value"],
+            ["Active Customer Base", f"{len(df_filtered):,}"],
+            ["Gross Revenue", f"${df_filtered['Total_Spending'].sum():,.2f}"],
+            ["Avg Customer Spend", f"${df_filtered['Total_Spending'].mean():,.2f}"],
+            ["Avg Order Value", f"${df_filtered['Average_Order_Value'].mean():,.2f}"],
+            ["Repeat Purchase Rate", f"{((df_filtered['Purchase_Frequency'] > 1).mean() * 100):.1f}%"]
+        ]
+        t = Table(kpi_data, colWidths=[250, 250])
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (1,0), colors.HexColor('#F7F1EC')),
+            ('TEXTCOLOR', (0,0), (1,0), colors.HexColor('#2E2A28')),
+            ('FONTNAME', (0,0), (1,0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#E8CFCF')),
+        ]))
+        story.append(t)
+        story.append(Spacer(1, 15))
 
-        # Core Metrics Table
-        pdf.set_font('Helvetica', 'B', 10)
-        pdf.set_fill_color(240, 244, 248)
-        
-        tot_cust = len(df)
-        tot_rev = df['Total_Spending'].sum()
-        avg_spend = df['Total_Spending'].mean()
-        top_cat = df['Preferred_Category'].mode()[0]
-
-        pdf.cell(45, 8, 'Total Customers', 1, 0, 'C', fill=True)
-        pdf.cell(45, 8, 'Total Revenue', 1, 0, 'C', fill=True)
-        pdf.cell(50, 8, 'Avg Customer Spend', 1, 0, 'C', fill=True)
-        pdf.cell(50, 8, 'Top Category', 1, 1, 'C', fill=True)
-
-        pdf.set_font('Helvetica', '', 10)
-        pdf.cell(45, 8, f"{tot_cust:,}", 1, 0, 'C')
-        pdf.cell(45, 8, f"${tot_rev:,.2f}", 1, 0, 'C')
-        pdf.cell(50, 8, f"${avg_spend:,.2f}", 1, 0, 'C')
-        pdf.cell(50, 8, str(top_cat), 1, 1, 'C')
-
-        pdf.ln(8)
-
-        # Section: Automated Business Insights
-        pdf.set_font('Helvetica', 'B', 13)
-        pdf.set_text_color(30, 136, 229)
-        pdf.cell(0, 8, 'Key Strategic Insights', ln=True)
-        pdf.set_font('Helvetica', '', 10)
-        pdf.set_text_color(50, 50, 50)
-
+        # Insights
+        story.append(Paragraph("AUTOMATED BUSINESS INSIGHTS", section_style))
         for ins in insights_list:
-            # Clean markup tags for standard PDF output
-            clean_ins = ins.replace('**', '').replace('💡', '').replace('✨', '').replace('💄', '').replace('🎯', '').replace('⚠️', '').replace('💎', '')
-            pdf.multi_cell(0, 6, f"- {clean_ins.strip()}")
-            pdf.ln(1)
+            story.append(Paragraph(f"• {ins}", body_style))
 
-        pdf.ln(5)
-
-        # Section: Customer Persona Summary Table
-        pdf.set_font('Helvetica', 'B', 13)
-        pdf.set_text_color(30, 136, 229)
-        pdf.cell(0, 8, 'Customer Persona Segment Breakdown', ln=True)
-        
-        pdf.set_font('Helvetica', 'B', 9)
-        pdf.set_fill_color(230, 238, 248)
-        
-        pdf.cell(60, 7, 'Persona Name', 1, 0, 'L', fill=True)
-        pdf.cell(30, 7, 'Count', 1, 0, 'C', fill=True)
-        pdf.cell(35, 7, 'Avg Spend', 1, 0, 'R', fill=True)
-        pdf.cell(35, 7, 'Avg Frequency', 1, 0, 'R', fill=True)
-        pdf.cell(30, 7, 'Recency (Days)', 1, 1, 'R', fill=True)
-
-        pdf.set_font('Helvetica', '', 9)
-        persona_stats = df.groupby('Customer_Persona').agg(
-            Count=('Customer_ID', 'count'),
-            Avg_Spend=('Total_Spending', 'mean'),
-            Avg_Freq=('Purchase_Frequency', 'mean'),
-            Avg_Recency=('Days_Since_Last_Purchase', 'mean')
-        ).reset_index()
-
-        for _, row in persona_stats.iterrows():
-            clean_name = row['Customer_Persona'].encode('latin-1', 'ignore').decode('latin-1')
-            pdf.cell(60, 7, clean_name[:32], 1, 0, 'L')
-            pdf.cell(30, 7, f"{int(row['Count']):,}", 1, 0, 'C')
-            pdf.cell(35, 7, f"${row['Avg_Spend']:,.2f}", 1, 0, 'R')
-            pdf.cell(35, 7, f"{row['Avg_Freq']:.1f}", 1, 0, 'R')
-            pdf.cell(30, 7, f"{row['Avg_Recency']:.1f}", 1, 1, 'R')
-
-        # Export PDF
-        pdf.output(self.output_pdf)
-        print(f"✅ PDF Executive Report generated successfully: '{self.output_pdf}'")
-        print("================ PDF GENERATION COMPLETE ================\n")
-        return self.output_pdf
-
-if __name__ == "__main__":
-    from src.insights import AutomatedInsightGenerator
-    insights = AutomatedInsightGenerator().generate_all_insights()
-    generator = PDFReportGenerator()
-    generator.build_pdf_report(insights)
+        doc.build(story)
+        buffer.seek(0)
+        return buffer.getvalue()

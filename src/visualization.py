@@ -1,115 +1,151 @@
 import plotly.express as px
-import plotly.graph_objects as gg
-import pandas as pd
-import numpy as np
+import plotly.graph_objects as go
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 class CosmeticsVisualizer:
-    """
-    Renders soft luxury Plotly visualizations matching the Lumière AI Figma specification.
-    """
-    
-    PALETTE = ['#D9A5A5', '#C9A86A', '#D8D2F0', '#C9D8C5', '#E8CFCF', '#B8929A']
-    BG_TRANSPARENT = "rgba(0,0,0,0)"
-    TEXT_COLOR = "#2E2A28"
-    GRID_COLOR = "rgba(201, 168, 106, 0.15)"
-    FONT_FAMILY = "Plus Jakarta Sans, sans-serif"
+    # Editorial Soft Luxury Color Palette
+    LUXE_PALETTE = ['#C9A86A', '#D9A5A5', '#8C707A', '#2E2A28', '#E8CFCF', '#B8A9C9']
+    HEATMAP_GRADIENT = [[0.0, '#FAF8F5'], [0.5, '#D9A5A5'], [1.0, '#2E2A28']]
 
     @staticmethod
-    def _apply_luxury_layout(fig, title=""):
+    def _apply_luxe_layout(fig, title=""):
         fig.update_layout(
-            paper_bgcolor=CosmeticsVisualizer.BG_TRANSPARENT,
-            plot_bgcolor=CosmeticsVisualizer.BG_TRANSPARENT,
-            font=dict(family=CosmeticsVisualizer.FONT_FAMILY, color=CosmeticsVisualizer.TEXT_COLOR, size=11),
-            title=dict(
-                text=f"<b>{title}</b>",
-                font=dict(size=14, color="#2E2A28", family="Cormorant Garamond")
-            ),
-            margin=dict(l=20, r=20, t=40, b=20)
+            title={
+                'text': f"<b>{title.upper()}</b>",
+                'font': {'family': 'Cormorant Garamond, serif', 'size': 16, 'color': '#2E2A28'},
+                'x': 0.0,
+                'xanchor': 'left'
+            },
+            font={'family': 'Plus Jakarta Sans, sans-serif', 'size': 11, 'color': '#2E2A28'},
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='#FFFFFF',
+            margin=dict(l=20, r=20, t=50, b=20),
+            xaxis=dict(showgrid=True, gridcolor='#F7F1EC', zeroline=False),
+            yaxis=dict(showgrid=True, gridcolor='#F7F1EC', zeroline=False),
+            legend=dict(
+                bgcolor='rgba(255,255,255,0.8)',
+                bordercolor='#F7F1EC',
+                borderwidth=1,
+                font=dict(size=10)
+            )
         )
         return fig
 
-    # --- EDA CHARTS ---
+    @staticmethod
+    def plot_pca_2d(df):
+        features = ['Age', 'Annual_Income', 'Total_Spending', 'Average_Order_Value', 'Purchase_Frequency', 'Days_Since_Last_Purchase']
+        X = df[features]
+        X_scaled = StandardScaler().fit_transform(X)
+        pca = PCA(n_components=2)
+        pcs = pca.fit_transform(X_scaled)
+        
+        pca_df = df.copy()
+        pca_df['PCA1'] = pcs[:, 0]
+        pca_df['PCA2'] = pcs[:, 1]
+
+        fig = px.scatter(
+            pca_df, x='PCA1', y='PCA2', color='Customer_Persona',
+            hover_data=['Customer_ID', 'Total_Spending', 'Annual_Income'],
+            color_discrete_sequence=CosmeticsVisualizer.LUXE_PALETTE,
+            opacity=0.88
+        )
+        fig.update_traces(marker=dict(size=9, line=dict(width=1, color='#FFFFFF')))
+        return CosmeticsVisualizer._apply_luxe_layout(
+            fig, 
+            f"2D PCA Cluster Map ({pca.explained_variance_ratio_.sum()*100:.1f}% Variance Retained)"
+        )
+
     @staticmethod
     def plot_age_dist(df):
-        fig = px.histogram(df, x='Age', nbins=20, color_discrete_sequence=['#D9A5A5'], title="Age Distribution")
-        fig.update_xaxes(showgrid=False)
-        fig.update_yaxes(showgrid=True, gridcolor=CosmeticsVisualizer.GRID_COLOR)
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Age Distribution")
+        fig = px.histogram(
+            df, x='Age', nbins=18, 
+            color_discrete_sequence=['#D9A5A5'],
+            opacity=0.85
+        )
+        fig.update_traces(marker=dict(line=dict(width=1, color='#FFFFFF')))
+        return CosmeticsVisualizer._apply_luxe_layout(fig, "Customer Age Demographics")
 
     @staticmethod
     def plot_income_dist(df):
-        fig = px.histogram(df, x='Annual_Income', nbins=20, color_discrete_sequence=['#C9A86A'], title="Annual Income Distribution")
-        fig.update_xaxes(showgrid=False)
-        fig.update_yaxes(showgrid=True, gridcolor=CosmeticsVisualizer.GRID_COLOR)
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Annual Income Distribution")
+        fig = px.box(
+            df, y='Annual_Income', x='Gender', 
+            color='Gender',
+            color_discrete_sequence=CosmeticsVisualizer.LUXE_PALETTE
+        )
+        return CosmeticsVisualizer._apply_luxe_layout(fig, "Income Distribution by Gender ($)")
 
     @staticmethod
     def plot_spending_dist(df):
-        fig = px.violin(df, y='Total_Spending', box=True, color_discrete_sequence=['#D8D2F0'], title="Spending Score Distribution")
-        fig.update_yaxes(showgrid=True, gridcolor=CosmeticsVisualizer.GRID_COLOR)
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Spending Score Distribution")
+        fig = px.violin(
+            df, y='Total_Spending', x='Preferred_Category', 
+            color='Preferred_Category', box=True, points=False,
+            color_discrete_sequence=CosmeticsVisualizer.LUXE_PALETTE
+        )
+        return CosmeticsVisualizer._apply_luxe_layout(fig, "Spending Velocity by Product Category")
 
     @staticmethod
     def plot_gender_dist(df):
-        gender_counts = df['Gender'].value_counts().reset_index()
-        gender_counts.columns = ['Gender', 'Count']
-        fig = px.pie(gender_counts, names='Gender', values='Count', hole=0.6, color_discrete_sequence=['#D8D2F0', '#C9A86A', '#D9A5A5'])
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Gender Distribution")
+        fig = px.pie(
+            df, names='Gender', 
+            color_discrete_sequence=['#D9A5A5', '#C9A86A', '#2E2A28'], 
+            hole=0.55
+        )
+        fig.update_traces(textinfo='percent+label', marker=dict(line=dict(color='#FFFFFF', width=2)))
+        return CosmeticsVisualizer._apply_luxe_layout(fig, "Gender Share Distribution")
 
     @staticmethod
     def plot_freq_dist(df):
-        fig = px.histogram(df, x='Purchase_Frequency', color_discrete_sequence=['#C9D8C5'], title="Purchase Frequency")
-        fig.update_xaxes(showgrid=False)
-        fig.update_yaxes(showgrid=True, gridcolor=CosmeticsVisualizer.GRID_COLOR)
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Purchase Frequency")
+        fig = px.histogram(
+            df, x='Purchase_Frequency', nbins=12,
+            color_discrete_sequence=['#C9A86A'],
+            opacity=0.85
+        )
+        fig.update_traces(marker=dict(line=dict(width=1, color='#FFFFFF')))
+        return CosmeticsVisualizer._apply_luxe_layout(fig, "Annual Order Frequency")
 
     @staticmethod
     def plot_revenue_dist(df):
-        df_sorted = df.sort_values('Total_Spending') if not df.empty else df
-        fig = px.area(df_sorted, y='Total_Spending', color_discrete_sequence=['#E8CFCF'], title="Revenue Distribution")
-        fig.update_xaxes(showgrid=False)
-        fig.update_yaxes(showgrid=True, gridcolor=CosmeticsVisualizer.GRID_COLOR)
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Revenue Distribution")
+        cat_rev = df.groupby('Preferred_Category')['Total_Spending'].sum().reset_index()
+        fig = px.bar(
+            cat_rev, x='Preferred_Category', y='Total_Spending', 
+            color='Preferred_Category',
+            color_discrete_sequence=CosmeticsVisualizer.LUXE_PALETTE,
+            text_auto='.2s'
+        )
+        fig.update_traces(marker=dict(line=dict(width=1, color='#FFFFFF')))
+        return CosmeticsVisualizer._apply_luxe_layout(fig, "Gross Revenue Contribution ($)")
 
     @staticmethod
     def plot_correlation_heatmap(df):
-        num_cols = [c for c in ['Age', 'Annual_Income', 'Purchase_Frequency', 'Total_Spending', 'Average_Order_Value'] if c in df.columns]
-        corr = df[num_cols].corr() if not df.empty else pd.DataFrame()
-        fig = px.imshow(corr, text_auto=".2f", color_continuous_scale=['#FAF8F5', '#E8CFCF', '#D9A5A5', '#C9A86A'], title="Correlation Heatmap")
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Correlation Heatmap")
+        num_cols = ['Age', 'Annual_Income', 'Total_Spending', 'Average_Order_Value', 'Purchase_Frequency', 'Days_Since_Last_Purchase']
+        corr = df[num_cols].corr()
+        
+        # FIXED: Continuous gradient using valid luxury color scale
+        fig = px.imshow(
+            corr, 
+            text_auto=".2f", 
+            color_continuous_scale=CosmeticsVisualizer.HEATMAP_GRADIENT,
+            aspect="auto"
+        )
+        fig.update_coloraxes(showscale=False)
+        return CosmeticsVisualizer._apply_luxe_layout(fig, "Feature Correlation Matrix")
 
     @staticmethod
     def plot_pair_sample(df):
-        sample_df = df.sample(min(150, len(df)), random_state=42) if len(df) > 0 else df
-        fig = px.scatter(sample_df, x='Annual_Income', y='Total_Spending', color='Customer_Persona',
-                         color_discrete_sequence=CosmeticsVisualizer.PALETTE, title="Pair Plot (Sample)")
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Pair Plot (Sample)")
-
-    # --- CLUSTERING & RFM CHARTS ---
-    @staticmethod
-    def plot_pca_2d(df):
         fig = px.scatter(
-            df, x='PCA1', y='PCA2', color='Customer_Persona',
-            hover_data=['Customer_ID', 'Total_Spending'],
-            color_discrete_sequence=CosmeticsVisualizer.PALETTE, template='plotly_white'
+            df, x='Annual_Income', y='Total_Spending', 
+            color='Customer_Persona', 
+            color_discrete_sequence=CosmeticsVisualizer.LUXE_PALETTE,
+            opacity=0.85
         )
-        fig.update_traces(marker=dict(size=9, opacity=0.88, line=dict(width=1, color='#FFFFFF')))
-        fig.update_xaxes(showgrid=True, gridcolor=CosmeticsVisualizer.GRID_COLOR)
-        fig.update_yaxes(showgrid=True, gridcolor=CosmeticsVisualizer.GRID_COLOR)
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "PCA VISUALIZATION (2D)")
-
-    @staticmethod
-    def plot_pca_3d(df):
-        fig = px.scatter_3d(
-            df, x='PCA3_1', y='PCA3_2', z='PCA3_3', color='Customer_Persona',
-            color_discrete_sequence=CosmeticsVisualizer.PALETTE, opacity=0.85
-        )
-        fig.update_layout(paper_bgcolor=CosmeticsVisualizer.BG_TRANSPARENT, height=480)
-        return fig
+        fig.update_traces(marker=dict(size=8, line=dict(width=0.8, color='#FFFFFF')))
+        return CosmeticsVisualizer._apply_luxe_layout(fig, "Income vs Spending Segmentation")
 
     @staticmethod
     def plot_category_spend(df):
-        cat_df = df.groupby('Preferred_Category')['Total_Spending'].sum().reset_index() if not df.empty else pd.DataFrame({'Preferred_Category': ['None'], 'Total_Spending': [0]})
-        fig = px.pie(cat_df, names='Preferred_Category', values='Total_Spending', hole=0.5, color_discrete_sequence=CosmeticsVisualizer.PALETTE)
-        fig.update_traces(textposition='inside', textinfo='percent+label')
-        return CosmeticsVisualizer._apply_luxury_layout(fig, "Top Product Categories")
+        fig = px.treemap(
+            df, path=['City', 'Preferred_Category'], values='Total_Spending', 
+            color_discrete_sequence=CosmeticsVisualizer.LUXE_PALETTE
+        )
+        return CosmeticsVisualizer._apply_luxe_layout(fig, "Geographic Category Spend Treemap")
