@@ -28,19 +28,15 @@ class CosmeticsClusteringEngine:
 
         X, X_scaled, _ = self.prepare_clustering_features(df)
 
-        # 1. K-Means
         kmeans = KMeans(n_clusters=config.N_CLUSTERS, random_state=config.RANDOM_STATE, n_init=10)
         df['Cluster'] = kmeans.fit_predict(X_scaled)
 
-        # 2. Agglomerative
         agg = AgglomerativeClustering(n_clusters=config.N_CLUSTERS)
         agg_labels = agg.fit_predict(X_scaled)
 
-        # 3. DBSCAN
         dbscan = DBSCAN(eps=1.2, min_samples=5)
         dbscan_labels = dbscan.fit_predict(X_scaled)
 
-        # Compute Real Unbiased Evaluation Metrics
         eval_metrics = pd.DataFrame({
             'Algorithm': ['K-Means', 'Agglomerative', 'DBSCAN'],
             'Silhouette Score': [
@@ -60,15 +56,14 @@ class CosmeticsClusteringEngine:
             ]
         })
 
-        # Map Cluster ID to Meaningful Business Persona based on Centroids
         cluster_means = df.groupby('Cluster')['Total_Spending'].mean()
         sorted_clusters = cluster_means.sort_values(ascending=False).index.tolist()
 
         persona_map = {
-            sorted_clusters[0]: 'VIP Cosmetics Enthusiasts ✨',
-            sorted_clusters[1]: 'Frequent Buyers 🛍️',
-            sorted_clusters[2]: 'Budget Conscious 💄',
-            sorted_clusters[3]: 'At-Risk Customers ⚠️'
+            sorted_clusters[0]: 'VIP Cosmetics Enthusiasts',
+            sorted_clusters[1]: 'Frequent Buyers',
+            sorted_clusters[2]: 'Budget Conscious',
+            sorted_clusters[3]: 'At-Risk Customers'
         }
         df['Customer_Persona'] = df['Cluster'].map(persona_map)
 

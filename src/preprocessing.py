@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler
 import config
 
 class CosmeticsDataPipeline:
@@ -19,7 +18,6 @@ class CosmeticsDataPipeline:
             incomes = np.random.normal(85000, 35000, n_samples).clip(22000, 280000).round(-2)
             categories = np.random.choice(['Skincare', 'Makeup', 'Bath & Body', 'Haircare', 'Fragrance'], size=n_samples)
             
-            # Correlated spend & purchase behavior
             base_spending = (incomes * 0.035) + np.random.normal(500, 300, n_samples)
             spendings = base_spending.clip(100, 15000).round(2)
             frequencies = (spendings / np.random.uniform(80, 250, n_samples)).clip(1, 48).round(0).astype(int)
@@ -50,7 +48,6 @@ class CosmeticsDataPipeline:
         df = self.load_or_generate_data()
         df = df.drop_duplicates(subset=['Customer_ID'])
         
-        # Median Imputation for numeric, mode for categorical
         num_cols = df.select_dtypes(include=[np.number]).columns
         df[num_cols] = df[num_cols].fillna(df[num_cols].median())
         
@@ -58,7 +55,6 @@ class CosmeticsDataPipeline:
         for c in cat_cols:
             df[c] = df[c].fillna(df[c].mode()[0])
 
-        # Clip numerical outliers using IQR
         for col in ['Total_Spending', 'Annual_Income', 'Average_Order_Value']:
             q1 = df[col].quantile(0.25)
             q3 = df[col].quantile(0.75)

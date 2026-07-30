@@ -45,12 +45,10 @@ class PDFReportGenerator:
             spaceAfter=6
         )
 
-        # Header
         story.append(Paragraph("LUMIÈRE AI ANALYTICS EXECUTIVE REPORT", title_style))
         story.append(Paragraph("Customer Intelligence, Persona Segmentation & Performance Insights", subtitle_style))
         story.append(Spacer(1, 10))
 
-        # Executive Metrics Table
         story.append(Paragraph("EXECUTIVE KPI SUMMARY", section_style))
         kpi_data = [
             ["Metric", "Value"],
@@ -71,7 +69,6 @@ class PDFReportGenerator:
         story.append(t)
         story.append(Spacer(1, 15))
 
-        # Insights
         story.append(Paragraph("AUTOMATED BUSINESS INSIGHTS", section_style))
         for ins in insights_list:
             story.append(Paragraph(f"• {ins}", body_style))

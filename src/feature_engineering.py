@@ -8,8 +8,6 @@ class CosmeticsFeatureEngineer:
 
     def extract_customer_features(self):
         df = pd.read_csv(self.filepath)
-
-        # Derived real features
         df['Spending_To_Income_Ratio'] = (df['Total_Spending'] / df['Annual_Income']).round(4)
         df['Monthly_Spend_Velocity'] = (df['Total_Spending'] / df['Customer_Lifetime_Months'].clip(1)).round(2)
         df['Discount_Sensitivity'] = pd.qcut(df['Discount_Usage'], q=3, labels=['Low', 'Moderate', 'High'])

@@ -2,7 +2,7 @@ class AIRecommendationEngine:
     @staticmethod
     def get_persona_strategies():
         return {
-            'VIP Cosmetics Enthusiasts ✨': {
+            'VIP Cosmetics Enthusiasts': {
                 'business_value': 'Highest Lifetime Value & Brand Advocacy',
                 'recommended_channels': 'Private Client Concierge, VIP App Invites, SMS',
                 'strategies': [
@@ -14,7 +14,7 @@ class AIRecommendationEngine:
                 'confidence': '95% Confidence (Data-backed)',
                 'img': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80'
             },
-            'Frequent Buyers 🛍️': {
+            'Frequent Buyers': {
                 'business_value': 'High Order Volume & Consistent Cash Flow',
                 'recommended_channels': 'Email Newsletters, Push Notifications',
                 'strategies': [
@@ -26,7 +26,7 @@ class AIRecommendationEngine:
                 'confidence': '92% Confidence (Data-backed)',
                 'img': 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&q=80'
             },
-            'Budget Conscious 💄': {
+            'Budget Conscious': {
                 'business_value': 'Price-Sensitive Volume Base',
                 'recommended_channels': 'Social Retargeting, Flash Sale Emails',
                 'strategies': [
@@ -38,7 +38,7 @@ class AIRecommendationEngine:
                 'confidence': '88% Confidence (Data-backed)',
                 'img': 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80'
             },
-            'At-Risk Customers ⚠️': {
+            'At-Risk Customers': {
                 'business_value': 'Dormant High-Potential Revenue',
                 'recommended_channels': 'Win-back Email Series, Direct Mailer Vouchers',
                 'strategies': [

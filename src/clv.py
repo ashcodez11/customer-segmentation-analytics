@@ -4,7 +4,6 @@ import numpy as np
 class CLVCalculator:
     @staticmethod
     def calculate_3yr_clv(df):
-        # Math: Historic Monthly Velocity * 36 months * Gross Profit Margin (65%)
         gross_margin = 0.65
         retention_rate = 0.82
         
@@ -12,7 +11,6 @@ class CLVCalculator:
             df['Monthly_Spend_Velocity'] * 36 * gross_margin * retention_rate
         ).round(2)
 
-        # Dynamic CLV Ranking Tiers
         quantiles = df['Predicted_CLV_3Yr'].quantile([0.6, 0.8, 0.9]).values
         def clv_tier(val):
             if val >= quantiles[2]:
