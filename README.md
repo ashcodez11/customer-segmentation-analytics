@@ -22,63 +22,27 @@ This platform is trained and analyzed using the **[Cosmetic Products Sales Datas
 
 ##  Key Features
 
-1. **Luxury Editorial UI/UX**: Designed as a single-page long-scrolling platform with a Base64-encoded hero header, Cormorant Garamond typography, and soft luxury pastel styling.
-2. **Data Storytelling & EDA**: 9 interactive Plotly charts analyzing age, annual income, spending velocity, purchase frequency, revenue flow, and feature correlations.
-3. **Unsupervised Machine Learning Engine**:
+1. **Luxury Editorial UI/UX**: Designed as a single-page long-scrolling platform with a Base64-encoded video hero header, Cormorant Garamond typography, and soft luxury pastel styling.
+2. **Executive Intelligence & Dynamic Loyalty Scoring**: Real-time KPI recalculation engine driven by live filter states.
+   - **Loyalty Score Formula**:
+     $$ \text{Loyalty Score} = (0.40 \times \text{Repeat Purchase Density}) + (0.30 \times \text{Active Recency Rate}) + (0.30 \times \text{Margin Rate}) $$
+3. **Data Storytelling & EDA**: 9 interactive Plotly charts analyzing age, annual income, spending velocity, purchase frequency, revenue flow, and feature correlations.
+4. **Unsupervised Machine Learning Engine**:
    - Compares **K-Means**, **Agglomerative (Hierarchical)**, and **DBSCAN** algorithms side-by-side.
    - 2D PCA (Principal Component Analysis) dimensional reduction plots using Plotly.
    - Model benchmark evaluation using **Silhouette Score**, **Davies–Bouldin Index**, and **Calinski–Harabasz Index**.
-4. **RFM Behavioral Matrix**: Quantile-based Recency, Frequency, and Monetary scoring categorizing users into 6 core segments (*Champions*, *Loyal*, *Potential Loyalists*, *Need Attention*, *At Risk*, *Lost*).
-5. **Predictive 3-Year CLV Analytics**: Mathematical lifetime value calculation tiered into Platinum 💎, Gold 🥇, Silver 🥈, and Bronze 🥉 valuation tiers.
-6. **Automated AI Recommendation Engine**: Persona-level marketing playbooks providing activation channels, action tactics, and expected financial impact.
-7. **Real-Time Dynamic Filter Engine**: Zero metric hallucination — every KPI, distribution chart, persona metric, and insight recalculates live on filter state changes.
-8. **Executive Export Center**: Instant multi-format exports:
-   -  **PDF Executive Briefing** (Built dynamically via ReportLab)
-   -  **Filtered CSV Data**
-   -  **Power BI Integration Package** (Structured JSON schema)
-   -  **Visual Assets ZIP** (Interactive Plotly HTML charts)
-   -  **Executive Presentation Deck** (Standalone HTML slide deck)
-  
-   - ## Executive Intelligence (KPIs & Loyalty Score)
-   -  How it works under the hood:
-KPIs recalculate live whenever filters change.
-Loyalty Score Formula:
-Loyalty Score
-=
-(
-0.40
-×
-Repeat Purchase Density
-)
-+
-(
-0.30
-×
-Active Recency Rate
-)
-+
-(
-0.30
-×
-Margin Rate
-)
-Loyalty Score=(0.40×Repeat Purchase Density)+(0.30×Active Recency Rate)+(0.30×Margin Rate)
-
-## Customer Lifetime Value
-How it works under the hood: Calculated in src/clv.py using historical monthly spending velocity, a 65% gross profit margin factor, and an 82% annual retention rate:
-Predicted 3-Yr CLV
-=
-Monthly Spend Velocity
-×
-36
-×
-0.65
-×
-0.82
-Predicted 3-Yr CLV=Monthly Spend Velocity×36×0.65×0.82
-
----
-
+5. **RFM Behavioral Matrix**: Quantile-based Recency, Frequency, and Monetary scoring categorizing users into 6 core segments (*Champions*, *Loyal*, *Potential Loyalists*, *Need Attention*, *At Risk*, *Lost*).
+6. **Predictive 3-Year CLV Analytics**: Mathematical lifetime value calculation tiered into Platinum 💎, Gold 🥇, Silver 🥈, and Bronze 🥉 valuation tiers.
+   - **Predictive 3-Yr CLV Formula** (65% gross margin & 82% annual retention rate):
+     $$ \text{Predicted 3-Yr CLV} = \text{Monthly Spend Velocity} \times 36 \times 0.65 \times 0.82 $$
+7. **Automated AI Recommendation Engine**: Persona-level marketing playbooks providing activation channels, action tactics, and expected financial impact.
+8. **Real-Time Dynamic Filter Engine**: Zero metric hallucination — every KPI, distribution chart, persona metric, and insight recalculates live on filter state changes.
+9. **Executive Export Center**: Instant multi-format exports:
+   -  **PDF Executive Briefing**: Built dynamically via ReportLab.
+   -  **Filtered CSV Data**: Live sliced raw dataset export.
+   -  **Power BI Integration Package**: Structured JSON schema for BI tools.
+   -  **Visual Assets ZIP**: Interactive Plotly HTML chart bundle.
+   -  **Executive Presentation Deck**: Standalone HTML slide deck.
 ##  Tech Stack
 
 - **Core Analytics & Data Engineering**: Python, Pandas, NumPy
