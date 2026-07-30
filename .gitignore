@@ -1,10 +1,8 @@
-# Virtual Environment
+# Virtual Environments (DO NOT PUSH)
 venv/
+.venv/
 env/
 ENV/
-bin/
-lib/
-include/
 
 # Python Cache & Bytecode
 __pycache__/
@@ -12,23 +10,21 @@ __pycache__/
 *$py.class
 .pytest_cache/
 
-# macOS System Files
+# Streamlit Local Configs & Secrets
+.streamlit/secrets.toml
+
+# macOS Hidden System Files
 .DS_Store
-.AppleDouble
-.LSOverride
+.DS_Store?
 ._*
+.Spotlight-V100
+.Trashes
 
-# Streamlit Local Config & Cache
-.streamlit/
-*.pyc
+# IDE & Editor Settings
+.vscode/
+.idea/
+*.swp
 
-# Environment / Secret Files (if any)
+# Environment Variables & Keys
 .env
 .env.*
-*.pem
-*.key
-*.token
-
-# Temp Exports & Generated PDF Reports
-reports/*.pdf
-exports/*.csv
