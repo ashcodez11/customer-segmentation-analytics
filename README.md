@@ -6,7 +6,7 @@
 [![Plotly](https://img.shields.io/badge/PLOTLY-LUXURY_VIZ-2E2A28?style=flat-square&logo=plotly&logoColor=C9A86A&labelColor=FAF8F5)](https://plotly.com/)
 [![Kaggle](https://img.shields.io/badge/DATASET-KAGGLE-2E2A28?style=flat-square&logo=kaggle&logoColor=C9A86A&labelColor=FAF8F5)](https://www.kaggle.com/datasets/parvezkhan90/cosmetic-products-sales)
 
-![Lumière AI Banner](assets/img.png)
+![Lumière AI Banner](assets/banner.png)
 
 An enterprise-grade Customer Intelligence and Customer Segmentation web application built for luxury cosmetics and e-commerce brands. Features unsupervised machine learning (**K-Means**, **Hierarchical**, **DBSCAN**), 2D PCA cluster mapping, dynamic RFM behavioral scoring, 3-Year Customer Lifetime Value (CLV) predictive modeling, automated natural-language insight generation, and executive multi-format exports.
 
