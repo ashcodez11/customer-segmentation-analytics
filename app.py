@@ -27,7 +27,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Convert Video to Base64 for Hero Slide
+# Convert Video to Base64
 def get_video_base64(path):
     if os.path.exists(path):
         with open(path, "rb") as f:
@@ -36,7 +36,7 @@ def get_video_base64(path):
 
 video_b64 = get_video_base64("assets/hero_video.mp4")
 
-# Inject Styling
+# CSS Styling: Overriding Red Streamlit Theme to Obsidian Black & Soft Luxury Gold
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
@@ -47,6 +47,31 @@ st.markdown("""
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
+    /* OVERRIDE STREAMLIT RED WIDGET ACCENTS TO OBSIDIAN BLACK */
+    div[data-baseweb="checkbox"] span[style*="background-color: rgb(255, 75, 75)"],
+    div[data-baseweb="checkbox"] input:checked + div {
+        background-color: #2E2A28 !important;
+        border-color: #2E2A28 !important;
+    }
+
+    /* Sliders styling override (Red to Black/Gold) */
+    div[data-baseweb="slider"] div[style*="background-color: rgb(255, 75, 75)"],
+    div[data-baseweb="slider"] div[style*="background: rgb(255, 75, 75)"] {
+        background-color: #2E2A28 !important;
+    }
+
+    div[role="slider"] {
+        background-color: #2E2A28 !important;
+        border-color: #2E2A28 !important;
+        box-shadow: 0 0 5px rgba(46, 42, 40, 0.5) !important;
+    }
+
+    span[data-baseweb="tag"] {
+        background-color: #2E2A28 !important;
+        color: #FFFFFF !important;
+    }
+
+    /* Hero Container */
     .hero-container {
         position: relative;
         width: 100%;
@@ -176,7 +201,7 @@ st.markdown("""
         overflow: hidden;
     }
     .loyalty-progress-fill {
-        background: linear-gradient(90deg, #D9A5A5 0%, #C9A86A 100%);
+        background: linear-gradient(90deg, #2E2A28 0%, #C9A86A 100%);
         height: 100%;
         border-radius: 10px;
     }
@@ -247,13 +272,18 @@ st.markdown("""
     }
 
     .stButton>button, .stDownloadButton>button {
-        background-color: #C9A86A !important;
+        background-color: #2E2A28 !important;
         color: #FFFFFF !important;
         border-radius: 20px !important;
         border: none !important;
         font-weight: 500 !important;
         padding: 8px 24px !important;
         width: 100% !important;
+    }
+
+    .stButton>button:hover, .stDownloadButton>button:hover {
+        background-color: #C9A86A !important;
+        color: #FFFFFF !important;
     }
 
     .lumiere-footer {
@@ -361,7 +391,7 @@ with st.form("lumiere_filter_form"):
 
     with col_f4:
         st.markdown("**BEHAVIORAL PERSONA**")
-        sel_persona_filter = st.selectbox("Persona Type", ["All Personas"] + sorted(df_raw['Customer_Persona'].unique().tolist()))
+        sel_persona_filter = st.selectbox("Persona Type", ["All Personas"] + sorted(df_raw['Customer_Persona'].dropna().unique().tolist()))
         st.markdown("<br>", unsafe_allow_html=True)
         btn_apply = st.form_submit_button("Apply Filters ✨", use_container_width=True)
 
@@ -393,8 +423,9 @@ if sel_city != "All Cities":
 if sel_persona_filter != "All Personas":
     df_filtered = df_filtered[df_filtered['Customer_Persona'] == sel_persona_filter]
 
-# Compute REAL Dynamic Loyalty Score Formula:
 active_cnt = len(df_filtered)
+
+# Loyalty Score Formula
 if active_cnt > 0:
     repeat_rate_val = (df_filtered['Purchase_Frequency'] > 1).mean()
     recent_rate_val = (df_filtered['Days_Since_Last_Purchase'] <= 45).mean()
@@ -415,7 +446,7 @@ st.markdown(f"""
 
 st.divider()
 
-# Fill Dynamic KPIs
+# Fill Dynamic KPIs directly from df_filtered
 gross_rev = df_filtered['Total_Spending'].sum() if active_cnt > 0 else 0.0
 avg_spend = df_filtered['Total_Spending'].mean() if active_cnt > 0 else 0.0
 avg_aov = df_filtered['Average_Order_Value'].mean() if active_cnt > 0 else 0.0
@@ -429,27 +460,29 @@ with kpi_placeholder:
     with col_k4: st.markdown(f'<div class="luxe-kpi-card"><div class="luxe-kpi-label">Avg Order Value</div><div class="luxe-kpi-value">${avg_aov:,.0f}</div></div>', unsafe_allow_html=True)
     with col_k5: st.markdown(f'<div class="luxe-kpi-card"><div class="luxe-kpi-label">Repeat Purchase Rate</div><div class="luxe-kpi-value">{repeat_pct:.1f}%</div></div>', unsafe_allow_html=True)
 
-# LAYER 5: CUSTOMER OVERVIEW
+# LAYER 5: CUSTOMER OVERVIEW (STRICT COMPUTATION ON REAL DATASET)
 st.markdown("<div id='customer-personas'></div>", unsafe_allow_html=True)
 st.markdown("<p class='section-title'>Customer Overview</p>", unsafe_allow_html=True)
 st.markdown("<p class='section-subtitle'>Discover key personas driving your business growth</p>", unsafe_allow_html=True)
 
 personas_config = [
-    {"name": "VIP Cosmetics Enthusiasts ✨", "img": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80"},
-    {"name": "Frequent Buyers 🛍️", "img": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&q=80"},
-    {"name": "Budget Conscious 💄", "img": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80"},
-    {"name": "At-Risk Customers ⚠️", "img": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80"}
+    {"name": "VIP Cosmetics Enthusiasts", "img": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80"},
+    {"name": "Frequent Buyers", "img": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&q=80"},
+    {"name": "Budget Conscious", "img": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80"},
+    {"name": "At-Risk Customers", "img": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80"}
 ]
 
 col_p1, col_p2, col_p3, col_p4 = st.columns(4)
 cols_p = [col_p1, col_p2, col_p3, col_p4]
 
 for idx, p_cfg in enumerate(personas_config):
+    # Strict filter matching cleaned persona names
     sub_df = df_filtered[df_filtered['Customer_Persona'] == p_cfg['name']]
     cnt = len(sub_df)
     avg_s = sub_df['Total_Spending'].mean() if not sub_df.empty else 0.0
     avg_a = int(sub_df['Age'].mean()) if not sub_df.empty else 0
     fav_c = sub_df['Preferred_Category'].mode()[0] if not sub_df.empty else "N/A"
+    data_share = (cnt / max(1, active_cnt)) * 100
     
     card_html = f"""
     <div class="persona-card">
@@ -461,7 +494,7 @@ for idx, p_cfg in enumerate(personas_config):
                 <b>Avg Spend:</b> ${avg_s:,.0f}<br>
                 <b>Avg Age:</b> {avg_a} Yrs<br>
                 <b>Fav Category:</b> {fav_c}<br>
-                <b>Data Share:</b> {(cnt/max(1, active_cnt)*100):.1f}%
+                <b>Data Share:</b> {data_share:.1f}%
             </div>
         </div>
     </div>
@@ -641,7 +674,7 @@ with col_i2:
 
 st.divider()
 
-# LAYER 13: EXPORT CENTER (100% WORKING DOWNLOADS)
+# LAYER 13: EXPORT CENTER
 st.markdown("<div id='export-center'></div>", unsafe_allow_html=True)
 st.markdown("<p class='section-title'>Export Center</p>", unsafe_allow_html=True)
 st.markdown("<p class='section-subtitle'>Download real executive reports and segmented datasets instantly</p>", unsafe_allow_html=True)
