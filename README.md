@@ -38,6 +38,44 @@ This platform is trained and analyzed using the **[Cosmetic Products Sales Datas
    -  **Power BI Integration Package** (Structured JSON schema)
    -  **Visual Assets ZIP** (Interactive Plotly HTML charts)
    -  **Executive Presentation Deck** (Standalone HTML slide deck)
+  
+   - ## Executive Intelligence (KPIs & Loyalty Score)
+   -  How it works under the hood:
+KPIs recalculate live whenever filters change.
+Loyalty Score Formula:
+Loyalty Score
+=
+(
+0.40
+×
+Repeat Purchase Density
+)
++
+(
+0.30
+×
+Active Recency Rate
+)
++
+(
+0.30
+×
+Margin Rate
+)
+Loyalty Score=(0.40×Repeat Purchase Density)+(0.30×Active Recency Rate)+(0.30×Margin Rate)
+
+## Customer Lifetime Value
+How it works under the hood: Calculated in src/clv.py using historical monthly spending velocity, a 65% gross profit margin factor, and an 82% annual retention rate:
+Predicted 3-Yr CLV
+=
+Monthly Spend Velocity
+×
+36
+×
+0.65
+×
+0.82
+Predicted 3-Yr CLV=Monthly Spend Velocity×36×0.65×0.82
 
 ---
 
